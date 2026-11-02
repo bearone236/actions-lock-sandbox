@@ -7,12 +7,19 @@ workflows:
         - 'bearone236/actions-lock-sandbox-upstream@v1.0.1'
     '.github/workflows/05-verify-lockfile.yml':
         - 'actions/checkout@v7.0.1'
+    '.github/workflows/07-remote-composite-sha.yml':
+        - 'bearone236/actions-lock-sandbox-upstream@v1.1.0'
 dependencies:
     'actions/checkout@v7.0.1':
         ref: 'v7.0.1'
         commit: 'sha1-3d3c42e5aac5ba805825da76410c181273ba90b1'
         owner_id: 44036562
         repo_id: 197814629
+    'bearone236/actions-lock-sandbox-upstream@26d0722ba1c61309c38eb85e999ffa02a6d51265':
+        ref: 'v1.0.0'
+        commit: 'sha1-26d0722ba1c61309c38eb85e999ffa02a6d51265'
+        owner_id: 89678674
+        repo_id: 1443059805
     'bearone236/actions-lock-sandbox-upstream@v1.0.0':
         ref: 'v1.0.0'
         commit: 'sha1-26d0722ba1c61309c38eb85e999ffa02a6d51265'
@@ -25,3 +32,10 @@ dependencies:
         repo_id: 1443059805
         uses:
             - 'bearone236/actions-lock-sandbox-upstream@v1.0.0'
+    'bearone236/actions-lock-sandbox-upstream@v1.1.0':
+        ref: 'v1.1.0'
+        commit: 'sha1-5b4a52e8d457bc279a2fd50558218aa3feb65545'
+        owner_id: 89678674
+        repo_id: 1443059805
+        uses:
+            - 'bearone236/actions-lock-sandbox-upstream@26d0722ba1c61309c38eb85e999ffa02a6d51265'

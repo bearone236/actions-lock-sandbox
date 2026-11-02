@@ -1,0 +1,15 @@
+# 他リポジトリの composite action が、内部の依存をコミット SHA で固定している場合
+name: 07-remote-composite-sha
+
+on:
+  push:
+    branches: [demo/remote-composite-sha]
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: bearone236/actions-lock-sandbox-upstream/scanner-sha@v1.1.0
