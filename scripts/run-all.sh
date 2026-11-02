@@ -29,5 +29,5 @@ for wf in "${workflows[@]}"; do
   gh run view "${id}" -R "${repo}" --log 2>/dev/null \
     | sed -E 's/^[^\t]*\t[^\t]*\t[0-9TZ:.-]+ //' \
     | grep -E "Using locked|Download action repository|: SAFE \(|: COMPROMISED \(|^##\[error\]|^✗|^  (tag|locked commit|used in)" \
-    | grep -v '^echo ' || true
+    | grep -v 'echo ' || true
 done
