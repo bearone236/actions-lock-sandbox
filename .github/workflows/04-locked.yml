@@ -12,3 +12,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: bearone236/actions-lock-sandbox-upstream/scanner@v1.0.1
+      # demo/drift: lockfile を更新せずに action を足す（actions/checkout@v7.0.1 は 05 用のエントリしかない）
+      - uses: actions/checkout@v7.0.1
