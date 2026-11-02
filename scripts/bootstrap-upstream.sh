@@ -61,6 +61,9 @@ EOF
 cat > README.md <<'EOF'
 # actions-lock-sandbox-upstream
 
+> [!WARNING]
+> このリポジトリのタグは検証のために意図的に付け替えます。実際のワークフローから `uses:` で参照しないでください。
+
 actions-lock-sandbox で使う「上流の action」役のリポジトリです。
 タグを付け替えて、タグ改ざん型のサプライチェーン攻撃を再現するために使います。
 "COMPROMISED" と表示するコードは文字列を出力するだけで、secret の読み出しや外部送信はしません。
