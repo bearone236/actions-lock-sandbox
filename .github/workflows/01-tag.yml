@@ -11,4 +11,4 @@ jobs:
   run:
     runs-on: ubuntu-latest
     steps:
-      - uses: bearone236/actions-lock-sandbox-upstream/setup-tool@v1
+      - uses: bearone236/actions-lock-sandbox-upstream/setup-tool@v1.0.0

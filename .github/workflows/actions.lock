@@ -3,10 +3,19 @@
 # Docs: https://gh.io/actions-lockfile
 version: 'v0.0.3'
 workflows:
+    '.github/workflows/01-tag.yml':
+        - 'bearone236/actions-lock-sandbox-upstream@v1.0.0'
+    '.github/workflows/02-sha.yml':
+        - 'bearone236/actions-lock-sandbox-upstream@v1.0.0'
+    '.github/workflows/03-sha-transitive.yml':
+        - 'bearone236/actions-lock-sandbox-upstream@v1.0.1'
     '.github/workflows/04-locked.yml':
         - 'bearone236/actions-lock-sandbox-upstream@v1.0.1'
     '.github/workflows/05-verify-lockfile.yml':
         - 'actions/checkout@v7.0.1'
+    '.github/workflows/06-local-action.yml':
+        - 'actions/checkout@v7.0.1'
+        - 'bearone236/actions-lock-sandbox-upstream@v1.0.0'
 dependencies:
     'actions/checkout@v7.0.1':
         ref: 'v7.0.1'

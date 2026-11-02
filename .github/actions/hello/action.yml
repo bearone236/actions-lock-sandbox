@@ -1,0 +1,6 @@
+name: hello
+description: リポジトリ内の composite action。中で外部の action を SHA で使う
+runs:
+  using: composite
+  steps:
+    - uses: bearone236/actions-lock-sandbox-upstream/setup-tool@v1.0.0
