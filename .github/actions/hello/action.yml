@@ -3,4 +3,4 @@ description: リポジトリ内の composite action。中で外部の action を
 runs:
   using: composite
   steps:
-    - uses: bearone236/actions-lock-sandbox-upstream/setup-tool@v1.0.0
+    - uses: bearone236/actions-lock-sandbox-upstream/setup-tool@26d0722ba1c61309c38eb85e999ffa02a6d51265 # v1.0.0
