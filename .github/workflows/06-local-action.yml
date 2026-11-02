@@ -2,6 +2,8 @@
 name: 06-local-action
 
 on:
+  push:
+    branches: [demo/local-composite]
   workflow_dispatch:
 
 permissions: {}
