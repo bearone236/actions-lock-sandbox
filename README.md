@@ -46,10 +46,11 @@ GitHub Actions の workflow dependency lockfile（`.github/workflows/actions.loc
 ##[error]Lockfile pin 26d0722ba1c61309c38eb85e999ffa02a6d51265 for `bearone236/actions-lock-sandbox-upstream` does not match ref `v1.0.0`. Ensure the pinned commit exists on the expected branch or tag
 ```
 
-ほかに 2 つの挙動を PR で再現しています（どちらもマージしません）。
+ほかに 3 つの挙動を再現しています（どれもマージしません）。
 
 - [PR #1](https://github.com/bearone236/actions-lock-sandbox/pull/1): lockfile を更新せずにワークフローを変えると、verify が失敗し、`workflow_dispatch` も API に拒否される
 - [PR #2](https://github.com/bearone236/actions-lock-sandbox/pull/2): `$/` で使う composite action の中を SHA で書くと、`--verify` は成功するのに実行時に `lockfile missing pin` で失敗する
+- [demo/remote-composite-sha ブランチ](https://github.com/bearone236/actions-lock-sandbox/tree/demo/remote-composite-sha): 他リポジトリの composite action の中が SHA の場合は、lockfile が SHA のままのキーで記録し、実行も成功する（上流の `scanner-sha@v1.1.0` を使用）
 
 `05-verify-lockfile` は schedule でも毎日実行しています。上流でタグが付け替えられても、ロックしたコミットがタグの履歴に残っていれば 04 は成功してしまい、自分のリポジトリに PR が無いと気づけないためです。
 
@@ -91,7 +92,7 @@ scripts/move-tags.sh $OWNER/actions-lock-sandbox-upstream release/v1.0.0
 scripts/run-all.sh $OWNER/actions-lock-sandbox   # 復旧の確認
 ```
 
-`run-all.sh` は各ワークフローで実際にダウンロードされたコミットと、SAFE / COMPROMISED のどちらが出力されたかを表示します。`retarget.sh` は 04 と 05 だけを lockfile に登録します。引数なしで `gh actions-lock` を実行すると 01〜03 も登録され、02 / 03 の SHA がタグに書き換わるので注意してください。
+`run-all.sh` は各ワークフローで実際にダウンロードされたコミットと、SAFE / COMPROMISED のどちらが出力されたかを表示します。 1 回あたり 1〜2 分で終わりますが、検証中に 1 度、run が queued のまま 15 分以上進まないことがありました。出力が止まったら Actions タブで run の状態を確かめ、進まない run はキャンセルしてやり直してください。`retarget.sh` は 04 と 05 だけを lockfile に登録します。引数なしで `gh actions-lock` を実行すると 01〜03 も登録され、02 / 03 の SHA がタグに書き換わるので注意してください。
 
 終わったら `gh auth refresh -h github.com -s delete_repo` のあと `gh repo delete` で 2 つのリポジトリを削除できます。
 
