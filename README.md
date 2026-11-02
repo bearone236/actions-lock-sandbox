@@ -55,45 +55,40 @@ GitHub Actions の workflow dependency lockfile（`.github/workflows/actions.loc
 
 ## 手元で再現する
 
-必要なもの: GitHub アカウント、認証済みの [GitHub CLI](https://cli.github.com/)（2.98.0 で確認）、bash、perl。
+上流役は fork せず、自分のアカウントに作り直します。scanner の中の `uses:` は `bearone236/actions-lock-sandbox-upstream/setup-tool@v1.0.0` と書かれているので、fork した上流のタグを付け替えても内側の依存には届かないためです。
 
-1. 拡張機能を入れる
+必要なもの: GitHub アカウント、認証済みの [GitHub CLI](https://cli.github.com/)（2.98.0 で確認）、git、bash（macOS 標準の 3.2 で確認）、perl、grep。
 
-   ```sh
-   gh extension install github/gh-actions-lock --pin v0.4.0
-   ```
+```sh
+gh extension install github/gh-actions-lock --pin v0.4.0
 
-2. 2 つのリポジトリを fork して clone する。上流はタグとブランチもすべて必要なので `--default-branch-only` は付けない
+# 利用者役を fork して clone する
+gh repo fork bearone236/actions-lock-sandbox --clone
+cd actions-lock-sandbox
+OWNER=<your-github-owner>
 
-   ```sh
-   gh repo fork bearone236/actions-lock-sandbox-upstream --clone=false
-   gh repo fork bearone236/actions-lock-sandbox --clone
-   cd actions-lock-sandbox
-   ```
+# 上流役 $OWNER/actions-lock-sandbox-upstream を public で作る（タグと攻撃用ブランチも作る）
+scripts/bootstrap-upstream.sh $OWNER
+```
 
-3. fork したサンドボックスの Actions タブを開き、ワークフローを有効にする（fork では既定で無効）
+fork したサンドボックスの Actions タブを開き、ワークフローを有効にしてください（fork では既定で無効。schedule も動きません）。
 
-4. ワークフローを自分の上流 fork に向け直し、lockfile を作り直して push する
+```sh
+# ワークフローを自分の上流に向け直し、02 / 03 の SHA と lockfile を作り直す
+scripts/retarget.sh $OWNER
+git add .github/workflows
+git commit -m "上流を自分のリポジトリに向ける"
+git push
 
-   ```sh
-   scripts/retarget.sh <your-github-owner>
-   git add .github/workflows
-   git commit -m "上流を自分の fork に向ける"
-   git push
-   ```
+# 攻撃前 → 攻撃 A → 攻撃 B → 復旧
+scripts/run-all.sh $OWNER/actions-lock-sandbox
+scripts/move-tags.sh $OWNER/actions-lock-sandbox-upstream attack/descendant
+scripts/run-all.sh $OWNER/actions-lock-sandbox
+scripts/move-tags.sh $OWNER/actions-lock-sandbox-upstream attack/orphan
+scripts/run-all.sh $OWNER/actions-lock-sandbox
+scripts/move-tags.sh $OWNER/actions-lock-sandbox-upstream release/v1.0.0
+```
 
-5. 攻撃前 → 攻撃 A → 攻撃 B → 復旧の順に実行する
+`run-all.sh` は各ワークフローで実際にダウンロードされたコミットと、SAFE / COMPROMISED のどちらが出力されたかを表示します。`retarget.sh` は 04 と 05 だけを lockfile に登録します。引数なしで `gh actions-lock` を実行すると 01〜03 も登録され、02 / 03 の SHA がタグに書き換わるので注意してください。
 
-   ```sh
-   OWNER=<your-github-owner>
-   scripts/run-all.sh $OWNER/actions-lock-sandbox
-   scripts/move-tags.sh $OWNER/actions-lock-sandbox-upstream attack/descendant
-   scripts/run-all.sh $OWNER/actions-lock-sandbox
-   scripts/move-tags.sh $OWNER/actions-lock-sandbox-upstream attack/orphan
-   scripts/run-all.sh $OWNER/actions-lock-sandbox
-   scripts/move-tags.sh $OWNER/actions-lock-sandbox-upstream release/v1.0.0
-   ```
-
-`run-all.sh` は各ワークフローで実際にダウンロードされたコミットと、SAFE / COMPROMISED のどちらが出力されたかを表示します。
-
-fork を使う手順（2〜4）は作者の環境では通していません。`retarget.sh` は owner を変えずに実行し、同じ lockfile が生成されることだけ確かめています。
+確認済みの範囲: `bootstrap-upstream.sh --no-push` でこのリポジトリの上流と同じ action が生成されること、`retarget.sh` を owner を変えずに実行してワークフローと lockfile が変わらないこと、`run-all.sh` が macOS 標準の bash で動くこと。別のアカウントで 1 から通してはいません。
