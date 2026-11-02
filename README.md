@@ -57,21 +57,22 @@ GitHub Actions の workflow dependency lockfile（`.github/workflows/actions.loc
 
 上流役は fork せず、自分のアカウントに作り直します。scanner の中の `uses:` は `bearone236/actions-lock-sandbox-upstream/setup-tool@v1.0.0` と書かれているので、fork した上流のタグを付け替えても内側の依存には届かないためです。
 
-必要なもの: GitHub アカウント、認証済みの [GitHub CLI](https://cli.github.com/)（2.98.0 で確認）、git、bash（macOS 標準の 3.2 で確認）、perl、grep。
+必要なもの: GitHub アカウント、認証済みの [GitHub CLI](https://cli.github.com/)（2.98.0 で確認）、git 2.28 以上（`user.name` / `user.email` を設定済み）、bash（macOS 標準の 3.2 で確認）、perl、grep。
 
 ```sh
+# すでに入っている場合は先に `gh extension remove actions-lock`
 gh extension install github/gh-actions-lock --pin v0.4.0
 
 # 利用者役を fork して clone する
 gh repo fork bearone236/actions-lock-sandbox --clone
 cd actions-lock-sandbox
-OWNER=<your-github-owner>
+OWNER=$(gh api user --jq .login)
 
 # 上流役 $OWNER/actions-lock-sandbox-upstream を public で作る（タグと攻撃用ブランチも作る）
 scripts/bootstrap-upstream.sh $OWNER
 ```
 
-fork したサンドボックスの Actions タブを開き、ワークフローを有効にしてください（fork では既定で無効。schedule も動きません）。
+fork したサンドボックスの Actions タブ（`https://github.com/$OWNER/actions-lock-sandbox/actions`）を開き、ワークフローを有効にしてください（fork では既定で無効。schedule も動きません）。`gh workflow list -R $OWNER/actions-lock-sandbox` で 01〜05 が `active` なら準備完了です。
 
 ```sh
 # ワークフローを自分の上流に向け直し、02 / 03 の SHA と lockfile を作り直す
@@ -87,8 +88,11 @@ scripts/run-all.sh $OWNER/actions-lock-sandbox
 scripts/move-tags.sh $OWNER/actions-lock-sandbox-upstream attack/orphan
 scripts/run-all.sh $OWNER/actions-lock-sandbox
 scripts/move-tags.sh $OWNER/actions-lock-sandbox-upstream release/v1.0.0
+scripts/run-all.sh $OWNER/actions-lock-sandbox   # 復旧の確認
 ```
 
 `run-all.sh` は各ワークフローで実際にダウンロードされたコミットと、SAFE / COMPROMISED のどちらが出力されたかを表示します。`retarget.sh` は 04 と 05 だけを lockfile に登録します。引数なしで `gh actions-lock` を実行すると 01〜03 も登録され、02 / 03 の SHA がタグに書き換わるので注意してください。
 
-確認済みの範囲: `bootstrap-upstream.sh --no-push` でこのリポジトリの上流と同じ action が生成されること、`retarget.sh` を owner を変えずに実行してワークフローと lockfile が変わらないこと、`run-all.sh` が macOS 標準の bash で動くこと。別のアカウントで 1 から通してはいません。
+終わったら `gh auth refresh -h github.com -s delete_repo` のあと `gh repo delete` で 2 つのリポジトリを削除できます。
+
+確認済みの範囲: `bootstrap-upstream.sh --no-push` でこのリポジトリの上流と同じ出力をする action が生成されること、`retarget.sh` を owner を変えずに実行してワークフローと lockfile が変わらないこと、`run-all.sh` が macOS 標準の bash で動くこと。別のアカウントで 1 から通してはいません。

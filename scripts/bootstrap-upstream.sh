@@ -18,6 +18,11 @@ push=true
 repo="${owner}/actions-lock-sandbox-upstream"
 dir=$(mktemp -d)/actions-lock-sandbox-upstream
 
+if [ "${push}" = true ] && gh repo view "${repo}" >/dev/null 2>&1; then
+  echo "${repo} はすでにあります。作り直すなら削除してから実行してください: gh repo delete ${repo}" >&2
+  exit 1
+fi
+
 git init -q -b main "${dir}"
 cd "${dir}"
 mkdir setup-tool scanner
@@ -94,9 +99,10 @@ git switch -q main
 git log --all --oneline --decorate
 
 if [ "${push}" = true ]; then
-  gh repo create "${repo}" --public \
+  echo "local repository: ${dir}"
+  # remote の URL（ssh / https）は gh の git_protocol 設定に合わせて gh に決めさせる
+  gh repo create "${repo}" --public --source . --remote origin \
     --description "Upstream actions for the actions.lock sandbox (tags are force-moved on purpose; payloads are harmless)"
-  git remote add origin "https://github.com/${repo}.git"
   git push -q origin main release/v1.0.0 attack/descendant attack/orphan v1 v1.0.0 v1.0.1
   echo "created https://github.com/${repo}"
 else
