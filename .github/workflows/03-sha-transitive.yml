@@ -1,0 +1,14 @@
+# パターン 3: 外側の action を SHA で固定する（lockfile なし）
+# scanner 自体は固定されるが、scanner の中の `uses: .../setup-tool@v1.0.0` はタグのまま解決される。
+name: 03-sha-transitive
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: bearone236/actions-lock-sandbox-upstream/scanner@1fb43acfc0b5e74825992e0f86525c5d75c3b4a5 # v1.0.1

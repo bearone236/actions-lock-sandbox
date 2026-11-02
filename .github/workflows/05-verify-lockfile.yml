@@ -1,0 +1,28 @@
+# actions.lock がワークフローと一致しているか、ロックしたコミットが上流の ref から
+# 今も到達できるか（タグが付け替えられていないか）を確かめる。
+# 01〜03 は比較のためにわざと lockfile に入れていないので、対象を 04 と 05 に絞る。
+name: 05-verify-lockfile
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - run: gh extension install github/gh-actions-lock --pin v0.4.0
+      - run: >-
+          gh actions-lock --verify
+          .github/workflows/04-locked.yml
+          .github/workflows/05-verify-lockfile.yml

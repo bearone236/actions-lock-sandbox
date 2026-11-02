@@ -1,0 +1,14 @@
+# パターン 1: タグで参照する（lockfile なし）
+# 上流がタグを付け替えると、次の実行から付け替え先のコードが動く。
+name: 01-tag
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: bearone236/actions-lock-sandbox-upstream/setup-tool@v1

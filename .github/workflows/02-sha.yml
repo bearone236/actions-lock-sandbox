@@ -1,0 +1,14 @@
+# パターン 2: 直接使う action をコミット SHA で固定する（lockfile なし）
+# 直接の依存はタグの付け替えに影響されない。
+name: 02-sha
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: bearone236/actions-lock-sandbox-upstream/setup-tool@26d0722ba1c61309c38eb85e999ffa02a6d51265 # v1.0.0

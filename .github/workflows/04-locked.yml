@@ -1,0 +1,14 @@
+# パターン 4: タグで書き、actions.lock で固定する
+# scanner と、scanner の中で使う setup-tool の両方のコミットが actions.lock に記録される。
+name: 04-locked
+
+on:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: bearone236/actions-lock-sandbox-upstream/scanner@v1.0.1
